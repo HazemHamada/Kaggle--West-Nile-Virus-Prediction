@@ -9,6 +9,11 @@ from sklearn.svm import LinearSVC
 from sklearn import svm
 import xgboost as xgb
 from sklearn.neural_network import MLPClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import Perceptron
 from matplotlib import pyplot
 import seaborn as sb
 from sklearn import preprocessing
@@ -156,7 +161,6 @@ for index,row in train.iterrows():
 
 train = train.drop('all', axis=1)
 
-#####################################################################
 
 ########################################################################################################################
 
@@ -204,7 +208,6 @@ selCols = data.columns[data.var() !=0]
 data = data[selCols]
 
 TrainX, TestX, TrainY, TestY = train_test_split(data, label, test_size=0.2, random_state=1)
-
 ########################################################################################################################
 
 
@@ -366,6 +369,90 @@ KNC = trainKNeighborsClassifier(TrainX,TrainY, TestX,  TestY)
 #Validation6 precision,recall,f score: (0.9248659197086221, 0.9473955647240846, 0.9346355669480494)
 #Validation6 AUC score: 0.5236
 #Accuracy6: 94.74%
+
+
+
+def RadialBasisFunctionKernel(VTrainX,VTrainY, VTestX,  VTestY):
+    kernel = 1.0 * RBF(1.0)
+    clf =GaussianProcessClassifier(kernel=kernel,random_state=0).fit(VTrainX, VTrainY)
+    valid_pred = clf.predict(VTestX)
+    valid_score = metrics.roc_auc_score(VTestY, valid_pred)
+    valid_score2 = metrics.f1_score(VTestY, valid_pred, average='weighted')
+    valid_score3 = precision_recall_fscore_support(VTestY, valid_pred, average='weighted')
+    print(f"Validation7 precision,recall,f score: ")
+    print(valid_score3)
+    print(f"Validation7 f1 score: {valid_score2:.4f}")
+    print(f"Validation7 AUC score: {valid_score:.4f}")
+    accuracy = accuracy_score(VTestY, valid_pred)
+    print("Accuracy7: %.2f%%" % (accuracy * 100.0))
+    return clf
+
+RBC = RadialBasisFunctionKernel(TrainX,TrainY, TestX,  TestY)
+
+
+
+def gaussianNaiveBayesClassifier(VTrainX,VTrainY, VTestX,  VTestY):
+    clf =GaussianNB().fit(VTrainX, VTrainY)
+    valid_pred = clf.predict(VTestX)
+    valid_score = metrics.roc_auc_score(VTestY, valid_pred)
+    valid_score2 = metrics.f1_score(VTestY, valid_pred, average='weighted')
+    valid_score3 = precision_recall_fscore_support(VTestY, valid_pred, average='weighted')
+    print(f"Validation8 precision,recall,f score: ")
+    print(valid_score3)
+    print(f"Validation8 f1 score: {valid_score2:.4f}")
+    print(f"Validation8 AUC score: {valid_score:.4f}")
+    accuracy = accuracy_score(VTestY, valid_pred)
+    print("Accuracy8: %.2f%%" % (accuracy * 100.0))
+    return clf
+
+GNBC = gaussianNaiveBayesClassifier(TrainX,TrainY, TestX,  TestY)
+#Validation8 precision,recall,f score: (0.9463349163744859, 0.6477565755544095, 0.7503711104334898, None)
+#Validation8 f1 score: 0.7504
+#Validation8 AUC score: 0.7136
+#Accuracy8: 64.78%
+
+
+def LinearDiscriminantClassifier(VTrainX,VTrainY, VTestX,  VTestY):
+    clf =LinearDiscriminantAnalysis().fit(VTrainX, VTrainY)
+    valid_pred = clf.predict(VTestX)
+    valid_score = metrics.roc_auc_score(VTestY, valid_pred)
+    valid_score2 = metrics.f1_score(VTestY, valid_pred, average='weighted')
+    valid_score3 = precision_recall_fscore_support(VTestY, valid_pred, average='weighted')
+    print(f"Validation9 precision,recall,f score: ")
+    print(valid_score3)
+    print(f"Validation9 f1 score: {valid_score2:.4f}")
+    print(f"Validation9 AUC score: {valid_score:.4f}")
+    accuracy = accuracy_score(VTestY, valid_pred)
+    print("Accuracy9: %.2f%%" % (accuracy * 100.0))
+    return clf
+
+LDC = LinearDiscriminantClassifier(TrainX,TrainY, TestX,  TestY)
+#Validation9 precision,recall,f score: (0.9310833952199952, 0.9443011861784425, 0.9369735331733785, None)
+#Validation9 f1 score: 0.9370
+#Validation9 AUC score: 0.5617
+#Accuracy9: 94.43%
+
+
+
+def PerceptronClassifier(VTrainX,VTrainY, VTestX,  VTestY):
+    clf =Perceptron(tol=1e-3, random_state=0).fit(VTrainX, VTrainY)
+    valid_pred = clf.predict(VTestX)
+    valid_score = metrics.roc_auc_score(VTestY, valid_pred)
+    valid_score2 = metrics.f1_score(VTestY, valid_pred, average='weighted')
+    valid_score3 = precision_recall_fscore_support(VTestY, valid_pred, average='weighted')
+    print(f"Validation10 precision,recall,f score: ")
+    print(valid_score3)
+    print(f"Validation10 f1 score: {valid_score2:.4f}")
+    print(f"Validation10 AUC score: {valid_score:.4f}")
+    accuracy = accuracy_score(VTestY, valid_pred)
+    print("Accuracy10: %.2f%%" % (accuracy * 100.0))
+    return clf
+
+PC = PerceptronClassifier(TrainX,TrainY, TestX,  TestY)
+#Validation10 precision,recall,f score: (0.9150839742583582, 0.9530685920577617, 0.9336901179124099, None)
+#Validation10 f1 score: 0.9337
+#Validation10 AUC score: 0.4981
+#Accuracy10: 95.31%
 
 
 
